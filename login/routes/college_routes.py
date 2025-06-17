@@ -286,6 +286,7 @@ def write_data_to_google_sheet(college_data: dict, sheet_name: str):
     except Exception as e:
         raise RuntimeError(f"Failed to write data to Google Sheet '{sheet_name}': {str(e)}")
 
+## College
 @router.post("/register")
 def register_college(college: schemas.UniversityInChargeCreate, db: Session = Depends(get_db)):
     errors = {}

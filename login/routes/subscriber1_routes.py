@@ -18,7 +18,7 @@ def get_db():
 async def subscribe(subscriber: SubscriptionSchema1, db: Session = Depends(get_db)):
     try:
         existing_subscriber = db.query(Subscriber1).filter_by(email=subscriber.email).first()
-        
+
         if existing_subscriber:
             return JSONResponse(
                 status_code=200,

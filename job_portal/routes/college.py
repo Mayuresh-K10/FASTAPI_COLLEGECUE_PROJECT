@@ -286,7 +286,7 @@ def create_college_job(
     except SQLAlchemyError as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error saving job: {str(e)}")
-    
+
 @router.get("/jobs-college/{university_in_charge_id}/")
 def jobs_by_college(
     university_in_charge_id: int,
@@ -354,7 +354,7 @@ def update_college_job(
     job_data: Job1CreateRequest, 
     db: Session = Depends(get_db), 
 ):
-    
+
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=400, detail="Token is missing or in an invalid format")
@@ -411,7 +411,7 @@ def update_college_job(
         except SQLAlchemyError as e:
             db.rollback()
             raise HTTPException(status_code=500, detail=f"Error updating job: {str(e)}")
-        
+
 @router.post("/change-college-job-status/{university_in_charge_id}/{job_id}/")
 def change_college_job_status(
     university_in_charge_id: int,
@@ -420,7 +420,7 @@ def change_college_job_status(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    
+
     auth_header = request.headers.get('Authorization', '')
     if not auth_header.startswith('Bearer '):
         raise HTTPException(status_code=400, detail="Token is missing or in an invalid format")
@@ -449,205 +449,6 @@ def change_college_job_status(
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Error updating job status: {str(e)}")
 
-
-# def fetch_applications_for_college(job, db: Session):
-#     applications = db.query(Application1).filter_by(job=job).all()
-#     applications_list = []
-
-#     for app in applications:
-#         resume_data = {}
-#         resume = None
-#         if app.user:
-#             resume = db.query(Resume).filter_by(user=app.user).first()
-#         else:
-#             resume = db.query(JobseekerResume).filter_by(job_seeker=app.job_seeker).first()
-
-#         if resume:
-#             resume_data = {
-#                 "address": resume.address,
-#                 "date_of_birth": resume.date_of_birth,
-#                 "website_urls": resume.website_urls,
-#                 "skills": resume.skills,
-#                 "activities": resume.activities,
-#                 "interests": resume.interests,
-#                 "languages": resume.languages,
-#                 "bio": resume.bio,
-#                 "city": resume.city,
-#                 "state": resume.state,
-#                 "country": resume.country,
-#                 "zipcode": resume.zipcode,
-#                 "objective": getattr(resume.objective, 'text', 'Not specified') if resume.objective else 'Not specified',
-#                 "education": [
-#                     {
-#                         "course_or_degree": edu.course_or_degree,
-#                         "school_or_university": edu.school_or_university,
-#                         "grade_or_cgpa": edu.grade_or_cgpa,
-#                         "start_date": edu.start_date,
-#                         "end_date": edu.end_date,
-#                         "description": edu.description
-#                     } for edu in resume.education_entries
-#                 ],
-#                 "experience": filter_empty_entries([
-#                     {
-#                         "job_title": exp.job_title,
-#                         "college": exp.college_name,
-#                         "start_date": exp.start_date,
-#                         "end_date": exp.end_date,
-#                         "description": exp.description,
-#                     } for exp in resume.experience_entries
-#                 ]),
-#                 "projects": filter_empty_entries([
-#                     {
-#                         "title": project.title,
-#                         "description": project.description,
-#                         "project_link": project.project_link
-#                     } for project in resume.projects
-#                 ]),
-#                 "references": filter_empty_entries([
-#                     {
-#                         "name": ref.name,
-#                         "contact_info": ref.contact_info,
-#                         "relationship": ref.relationship,
-#                     } for ref in resume.references
-#                 ]),
-#                 "certifications": filter_empty_entries([
-#                     {
-#                         "name": cert.name,
-#                         "start_date": cert.start_date,
-#                         "end_date": cert.end_date,
-#                     } for cert in resume.certifications
-#                 ]),
-#                 "achievements": filter_empty_entries([
-#                     {
-#                         "title": ach.title,
-#                         "publisher": ach.publisher,
-#                         "start_date": ach.start_date,
-#                         "end_date": ach.end_date,
-#                     } for ach in resume.achievements
-#                 ]),
-#                 "publications": filter_empty_entries([
-#                     {
-#                         "title": pub.title,
-#                         "start_date": pub.start_date,
-#                         "end_date": pub.end_date,
-#                     } for pub in resume.publications
-#                 ])
-#             }
-
-#         model_name = 'new_user' if app.user else 'JobSeeker'
-#         applications_list.append({
-#             'id': app.id,
-#             'first_name': app.first_name,
-#             'last_name': app.last_name,
-#             'email': app.email,
-#             'phone_number': app.phone_number,
-#             'status': app.status,
-#             'applied_at': app.applied_at.isoformat() if app.applied_at else None,
-#             'model_name': model_name,
-#             'resume_details': resume_data,
-#         })
-
-#     return applications_list
-
-# def fetch_applications_for_college(job, db: Session):
-#     applications = db.query(Application1).filter_by(job_id=job.id).all()
-#     applications_list = []
-
-#     for app in applications:
-#         resume_data = {}
-#         resume = None
-
-#         if app.user:
-#             resume = db.query(Resume).filter_by(user=app.user).first()
-#         else:
-#             resume = db.query(JobseekerResume).filter_by(job_seeker=app.job_seeker).first()
-
-#         if resume:
-#             resume_data = {
-#                 "address": resume.address,
-#                 "date_of_birth": resume.date_of_birth,
-#                 "website_urls": resume.website_urls,
-#                 "skills": resume.skills,
-#                 "activities": resume.activities,
-#                 "interests": resume.interests,
-#                 "languages": resume.languages,
-#                 "bio": resume.bio,
-#                 "city": resume.city,
-#                 "state": resume.state,
-#                 "country": resume.country,
-#                 "zipcode": resume.zipcode,
-#                 "objective": getattr(resume.objective, 'text', 'Not specified') if resume.objective else 'Not specified',
-#                 "education": [
-#                     {
-#                         "course_or_degree": edu.course_or_degree,
-#                         "school_or_university": edu.school_or_university,
-#                         "grade_or_cgpa": edu.grade_or_cgpa,
-#                         "start_date": edu.start_date,
-#                         "end_date": edu.end_date,
-#                         "description": edu.description
-#                     } for edu in resume.education_entries
-#                 ],
-#                 "experience": filter_empty_entries([
-#                     {
-#                         "job_title": exp.job_title,
-#                         "college": exp.college_name,
-#                         "start_date": exp.start_date,
-#                         "end_date": exp.end_date,
-#                         "description": exp.description,
-#                     } for exp in resume.experience_entries
-#                 ]),
-#                 "projects": filter_empty_entries([
-#                     {
-#                         "title": project.title,
-#                         "description": project.description,
-#                         "project_link": project.project_link
-#                     } for project in resume.projects
-#                 ]),
-#                 "references": filter_empty_entries([
-#                     {
-#                         "name": ref.name,
-#                         "contact_info": ref.contact_info,
-#                         "relationship": ref.relationship,
-#                     } for ref in resume.references
-#                 ]),
-#                 "certifications": filter_empty_entries([
-#                     {
-#                         "name": cert.name,
-#                         "start_date": cert.start_date,
-#                         "end_date": cert.end_date,
-#                     } for cert in resume.certifications
-#                 ]),
-#                 "achievements": filter_empty_entries([
-#                     {
-#                         "title": ach.title,
-#                         "publisher": ach.publisher,
-#                         "start_date": ach.start_date,
-#                         "end_date": ach.end_date,
-#                     } for ach in resume.achievements
-#                 ]),
-#                 "publications": filter_empty_entries([
-#                     {
-#                         "title": pub.title,
-#                         "start_date": pub.start_date,
-#                         "end_date": pub.end_date,
-#                     } for pub in resume.publications
-#                 ])
-#             }
-
-#         model_name = 'new_user' if app.user else 'JobSeeker'
-#         applications_list.append({
-#             'id': app.id,
-#             'first_name': app.first_name,
-#             'last_name': app.last_name,
-#             'email': app.email,
-#             'phone_number': app.phone_number,
-#             'status': app.status,
-#             'applied_at': app.applied_at.isoformat() if app.applied_at else None,
-#             'model_name': model_name,
-#             'resume_details': resume_data,
-#         })
-
-#     return applications_list
 
 def fetch_applications_for_college(job, db: Session):
     applications = db.query(Application1).filter_by(job_id=job.id).all()
@@ -815,7 +616,7 @@ async def college_jobs_api(
     db: Session = Depends(get_db)
 ):
     auth_header = request.headers.get("Authorization")
-    
+
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=400, detail="Token is missing or invalid format")
 
@@ -846,7 +647,7 @@ async def job_detail_api(
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=400, detail="Token is missing or invalid format")
-    
+
     token = auth_header.split(" ")[1]
 
     university_in_charge = db.query(UniversityInCharge).filter_by(id=university_in_charge_id, token=token).first()
@@ -883,87 +684,6 @@ def get_student_enquiries_for_college(
     enquiries = db.query(NewUserEnquiry).filter_by(university_in_charge_id=university.id).all()
 
     return enquiries
-
-# @router.put("/update-college-application-status/{university_in_charge_id}/{application_id}/")
-# def update_college_application_status(
-#     university_in_charge_id: int,
-#     application_id: int,
-#     request: Request,
-#     payload: StatusUpdatePayload,
-#     authorization: Optional[str] = Header(None),
-#     db: Session = Depends(get_db)
-# ):
-
-#     if not authorization or not authorization.startswith("Bearer "):
-#         raise HTTPException(status_code=400, detail="Token is missing or invalid format")
-    
-#     token = authorization.split(" ")[1]
-
-#     university_in_charge = db.query(UniversityInCharge).filter_by(id=university_in_charge_id, token=token).first()
-#     if not university_in_charge:
-#         raise HTTPException(status_code=401, detail="Invalid token or university in charge not found")
-
-#     application = db.query(Application1).filter_by(id=application_id, university_in_charge_id=university_in_charge_id).first()
-#     if not application:
-#         raise HTTPException(status_code=404, detail="Application not found")
-
-#     application.status = payload.application_status
-#     db.commit()
-
-#     ############################ Notifications ############################
-#     college_email_safe = re.sub(r'[@.]', lambda m: "_at_" if m.group() == '@' else "_dot_", university_in_charge.official_email)
-#     notification_group = f"notifications_{college_email_safe}"
-
-#     notification_message = (
-#         f"Application status for {application.first_name} {application.last_name} "
-#         f"updated to {application.status} by {university_in_charge.university_name}"
-#     )
-
-#     # await send_notification_to_group(notification_group, notification_message)
-
-#     if application.job_seeker:
-#         job_seeker = application.job_seeker
-#         js_email_safe = re.sub(r'[@.]', lambda m: "_at_" if m.group() == '@' else "_dot_", job_seeker.email)
-#         job_seeker_group = f"notifications_{js_email_safe}"
-
-#         recipient_status = db.query(OnlineStatus).filter_by(email=job_seeker.email).first()
-#         message = (
-#             f"Your application for {application.job.job_title} has been updated "
-#             f"to {application.status} by {university_in_charge.university_name}"
-#         )
-
-#         if recipient_status and recipient_status.is_online:
-#             # await send_notification_to_group(job_seeker_group, message)
-#             print("recipient is online")
-#         else:
-#             send_appliction_email(
-#                 subject="Application Status Update",
-#                 body=f"Dear {job_seeker.first_name} {job_seeker.last_name},\n\n{message}\n\nHR Team\n{university_in_charge.university_name}",
-#                 recipient=job_seeker.email,
-#             )
-
-#     if application.user:
-#         user = application.user
-#         user_email_safe = re.sub(r'[@.]', lambda m: "_at_" if m.group() == '@' else "_dot_", user.email)
-#         user_group = f"notifications_{user_email_safe}"
-
-#         recipient_status = db.query(OnlineStatus).filter_by(email=user.email).first()
-#         message = (
-#             f"Your application for {application.job.job_title} has been updated "
-#             f"to {application.status} by {university_in_charge.university_name}"
-#         )
-
-#         if recipient_status and recipient_status.is_online:
-#             # await send_notification_to_group(user_group, message)
-#             print("recipient is online")
-#         else:
-#             send_appliction_email(
-#                 subject="Application Status Update",
-#                 body=f"Dear {user.firstname} {user.lastname},\n\n{message}\n\nBest Regards,\nHR Team\n{university_in_charge.university_name}",
-#                 recipient=user.email,
-#             )
-
-#     return JSONResponse(status_code=200, content={"message": "Application status updated successfully"})
 
 @router.put("/update-college-application-status/{university_in_charge_id}/{application_id}/")
 async def update_college_application_status(

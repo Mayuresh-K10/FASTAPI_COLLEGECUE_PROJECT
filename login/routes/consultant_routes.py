@@ -80,7 +80,7 @@ def write_consultant_to_google_sheet(consultant_data):
 def register_consultant(consultant: schemas.ConsultantCreate, db: Session = Depends(get_db)):
     print("Register function called", flush=True)
     logger.info("Processing registration logic")
-    
+
     errors = {}
 
     try:
@@ -97,7 +97,7 @@ def register_consultant(consultant: schemas.ConsultantCreate, db: Session = Depe
         email_username = consultant.official_email.split('@')[0]
         if not has_two_unique_chars(email_username):
             errors['official_email'] = 'Email username must contain at least 2 unique characters'
-            
+
         if consultant.password != consultant.confirm_password:
             errors['password'] = 'Passwords do not match'
 
@@ -136,7 +136,7 @@ def register_consultant(consultant: schemas.ConsultantCreate, db: Session = Depe
         }
 
         write_consultant_to_google_sheet(consultant_data)
-        
+
         try:
             send_registration_email(consultant.consultant_name, consultant.official_email)
             print("Sending email...", flush=True)
@@ -176,9 +176,9 @@ def login_consultant(consultant_data: schemas.ConsultantLogin, db: Session = Dep
             status_record.is_online = True
         else:
             db.add(models.OnlineStatus(email=consultant.official_email, is_online=True))
-        
+
         db.commit()
-        
+
         try:
             send_login_email(consultant.official_email, consultant.consultant_name)
             print("Sending email...", flush=True)
@@ -246,7 +246,7 @@ def consultant_forgot_password(request: Request, data: schemas.ForgotRequest, db
         
         consultant_email = models.Forgot(
            email=data.email,
-       
+
        )
 
         db.add(consultant_email)
@@ -279,7 +279,7 @@ def consultant_verify_otp(request: Request, data: schemas.VerifySchema, db: Sess
         otp = models.Verify(
             otp=data.otp
         )
-        
+
         db.add(otp)
         db.commit()
         db.refresh(otp)
@@ -290,14 +290,14 @@ def consultant_verify_otp(request: Request, data: schemas.VerifySchema, db: Sess
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 @router.get("/resend-otp")
 def consultant_resend_otp(request: Request, db: Session = Depends(get_db)):
     try:
         stored_email = request.session.get("email")
         if not stored_email:
             raise HTTPException(status_code=400, detail="Session data not found")
-        
+
         consultant = db.query(models.Consultant).filter_by(official_email=stored_email).first()
         if not consultant:
             raise HTTPException(status_code=404, detail="Consultant not found")
@@ -313,13 +313,13 @@ def consultant_resend_otp(request: Request, db: Session = Depends(get_db)):
 
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
-    
+
 @router.post("/forgot2")
 def consultant_forgot2(request: Request, data: schemas.ForgotRequest2, db: Session = Depends(get_db)):
     try:
         password = data.password
         confirm_password = data.confirm_password
-        
+
         if not password or not confirm_password:
             raise HTTPException(status_code=400, detail="Password and confirm_password are required")
 

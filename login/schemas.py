@@ -14,11 +14,11 @@ class CompanyInChargeCreate(BaseModel):
     linkedin_profile:str
     company_person_name: str
     agreed_to_terms: bool
-        
+
 class CompanyInChargeLogin(BaseModel):
     official_email: EmailStr
     password: str
-    
+
 class UniversityInChargeCreate(BaseModel):
     university_name: str
     official_email: EmailStr
@@ -31,7 +31,7 @@ class UniversityInChargeCreate(BaseModel):
     college_person_name: str
     agreed_to_terms: bool
     clg_id: Optional[str] = None
-        
+
 class UniversityInChargeLogin(BaseModel):
     official_email: EmailStr
     password: str
@@ -72,7 +72,6 @@ class JobseekerCreate(BaseModel):
     email: EmailStr
     country_code: str
     phonenumber: str
-    # designation : str
     experience: int
     linkedin_profile:str
     password: str
@@ -85,14 +84,14 @@ class JobseekerLogin(BaseModel):
 
 class ForgotRequest(BaseModel):
     email: EmailStr
-    
+
 class VerifySchema(BaseModel):
     otp: str
 
 class ForgotRequest2(BaseModel):
     password : str
     confirm_password : str
-    
+
 class ResetPasswordRequest(BaseModel):
     email: EmailStr
     old_password: str
@@ -117,7 +116,7 @@ class ConsultantCreate(BaseModel):
 class ConsultantLogin(BaseModel):
     official_email: EmailStr
     password: str
-    
+
 class ContactCreate(BaseModel):
     name: str
     email: EmailStr
@@ -240,7 +239,7 @@ class AdmissionReviewOut(BaseModel):
 
     class Config:
         orm_mode = True
-        
+
 class UnregisterCollegeCreate(BaseModel):
     university_name: str
     official_email: EmailStr
@@ -252,4 +251,3 @@ class UnregisterCollegeCreate(BaseModel):
     linkedin_profile:str
     college_person_name: str
     agreed_to_terms: bool
-    

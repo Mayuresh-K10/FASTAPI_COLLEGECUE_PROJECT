@@ -161,7 +161,7 @@ async def jobseeker_application_status_counts(request: Request, jobseeker_id: in
         raise HTTPException(status_code=400, detail="Token is missing or invalid format")
 
     token = auth_header.split(" ", 1)[1]
-    
+
     email = request.query_params.get('email')
     if not email:
         raise HTTPException(status_code=400, detail="Email parameter is required")
@@ -183,7 +183,7 @@ async def jobseeker_application_status_counts(request: Request, jobseeker_id: in
     pending_count = (
         get_count(Application, "pending") + get_count(Application1, "pending")
     )
-    
+
     interview_scheduled_count = (
         get_count(Application, "interview_scheduled") + get_count(Application1, "interview_scheduled")
     )
@@ -411,7 +411,6 @@ async def unsave_job_new_user(request: Request, db: Session = Depends(get_db)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
 
 @router.get("/fetch-saved-jobs-job_seeker/{job_seeker_id}")
 def fetch_saved_jobs_job_seeker(job_seeker_id: int, request: Request, db: Session = Depends(get_db)):
@@ -485,7 +484,6 @@ def fetch_saved_jobs_job_seeker(job_seeker_id: int, request: Request, db: Sessio
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
 
 @router.get("/apply/{job_id}/{user_id}")
 def jobseeker_apply_for_job(job_id: str, user_id: int, request: Request, db: Session = Depends(get_db)):

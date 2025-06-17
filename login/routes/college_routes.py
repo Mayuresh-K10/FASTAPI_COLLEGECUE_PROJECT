@@ -30,212 +30,6 @@ def has_two_unique_chars(value):
 SERVICE_ACCOUNT_FILE = 'C:\\Users\\HP\\Documents\\Bharat _Tech\\firebase\\new\\collegcue-firebase-adminsdk-p63yc-498e419897.json'
 SPREADSHEET_ID = '1UCiJsKfBT6eejyx07Tr7vEJylyfldVMbDyH0Au_kkdg'
 
-# def write_college_to_google_sheet(college_data):
-#     try:
-#         scopes = [
-#                   'https://www.googleapis.com/auth/spreadsheets',
-#                   'https://www.googleapis.com/auth/drive']
-
-#         credentials = Credentials.from_service_account_file(
-#             SERVICE_ACCOUNT_FILE,
-#             scopes=scopes
-#         )
-#         client = gspread.authorize(credentials)
-
-#         sheet = client.open_by_key(SPREADSHEET_ID)
-#         worksheet = sheet.get_worksheet(2)
-
-#         headers = worksheet.row_values(1)
-#         try:
-#             email_index = headers.index('official_email')
-#         except ValueError:
-#             raise ValueError("No 'official_email' column found in Sheet2")
-
-#         email_column = worksheet.col_values(email_index + 1)[1:]
-
-#         if any(email.lower() == college_data['official_email'].lower() for email in email_column):
-#             return
-
-#         today_date = datetime.date.today().strftime('%Y-%m-%d')
-
-#         new_row = [
-#             college_data['university_name'],
-#             college_data['official_email'],
-#             college_data['country_code'],
-#             college_data['mobile_number'],
-#             college_data['designation'],
-#             college_data['password'],
-#             college_data['linkedin_profile'],
-#             college_data['college_person_name'],
-#             college_data['agreed_to_terms'],
-#             today_date
-#         ]
-
-#         worksheet.append_row(new_row)
-
-#     except Exception as e:
-#         raise RuntimeError(f"Failed to write college data to Google Sheet: {str(e)}")
-
-# def send_unregister_college_data(college_data):
-#     try:
-#         scopes = [
-#                   'https://www.googleapis.com/auth/spreadsheets',
-#                   'https://www.googleapis.com/auth/drive']
-
-#         credentials = Credentials.from_service_account_file(
-#             SERVICE_ACCOUNT_FILE,
-#             scopes=scopes
-#         )
-#         client = gspread.authorize(credentials)
-
-#         sheet = client.open_by_key(SPREADSHEET_ID)
-#         worksheet = sheet.get_worksheet(2)
-
-#         headers = worksheet.row_values(1)
-#         try:
-#             email_index = headers.index('official_email')
-#         except ValueError:
-#             raise ValueError("No 'official_email' column found in Sheet2")
-
-#         email_column = worksheet.col_values(email_index + 1)[1:]
-
-#         if any(email.lower() == college_data['official_email'].lower() for email in email_column):
-#             return
-
-#         today_date = datetime.date.today().strftime('%Y-%m-%d')
-
-#         new_row = [
-#             college_data['university_name'],
-#             college_data['official_email'],
-#             college_data['country_code'],
-#             college_data['mobile_number'],
-#             college_data['designation'],
-#             college_data['password'],
-#             college_data['linkedin_profile'],
-#             college_data['college_person_name'],
-#             college_data['agreed_to_terms'],
-#             today_date
-#         ]
-
-#         worksheet.append_row(new_row)
-
-#     except Exception as e:
-#         raise RuntimeError(f"Failed to write college data to Google Sheet: {str(e)}")
-    
-# @router.post("/register")
-# def register_college(college: schemas.UniversityInChargeCreate, db: Session = Depends(get_db)):
-#     print("Register function called", flush=True)
-#     logger.info("Processing registration logic")
-    
-#     errors = {}
-
-#     try:
-#         existing_college = db.query(models.UniversityInCharge).filter_by(official_email=college.official_email).first()
-#         if existing_college:
-#             if existing_college.university_name != college.university_name:
-#                 errors['official_email'] = 'Email already registered with different university name'
-#             else:
-#                 errors['official_email'] = 'Email already registered'
-
-#         if db.query(models.UniversityInCharge).filter_by(mobile_number=college.mobile_number).first():
-#             errors['mobile_number'] = 'Mobile number already in use'
-
-#         email_username = college.official_email.split('@')[0]
-#         if not has_two_unique_chars(email_username):
-#             errors['official_email'] = 'Email username must contain at least 2 unique characters'
-        
-#         if college.password != college.confirm_password:
-#             errors['password'] = 'Passwords do not match'
-
-#         if errors:
-#             raise HTTPException(status_code=400, detail=errors)
-
-#         hashed_password = bcrypt.hash(college.password)
-
-#         db_college = models.UniversityInCharge(
-#             university_name=college.university_name,
-#             official_email=college.official_email,
-#             country_code=college.country_code,
-#             mobile_number=college.mobile_number,
-#             designation=college.designation,
-#             password=hashed_password,
-#             confirm_password=hashed_password,
-#             linkedin_profile=college.linkedin_profile,
-#             college_person_name=college.college_person_name,
-#             agreed_to_terms=college.agreed_to_terms,
-#             clg_id=college.university_id
-#         )
-
-#         db.add(db_college)
-#         db.commit()
-#         db.refresh(db_college)
-
-#         college_data = {
-#             'university_name': college.university_name,
-#             'official_email': college.official_email,
-#             'country_code': college.country_code,
-#             'mobile_number': college.mobile_number,
-#             'designation': college.designation,
-#             'password': hashed_password,
-#             'linkedin_profile': college.linkedin_profile,
-#             'college_person_name': college.college_person_name,
-#             'agreed_to_terms': college.agreed_to_terms
-            
-#         }
-
-#         write_college_to_google_sheet(college_data)
-        
-#         try:
-#             send_registration_email(college.university_name, college.official_email)
-#             print("Sending email...", flush=True)
-#             logger.info("Email sent successfully")
-#         except HTTPException as e:
-#             logger.error(f"Email failed: {e}")
-#             raise HTTPException(status_code=500, detail=f"Email sending failed: {str(e)}")
-        
-#         college_id = college.university_id
-        
-#         if not college_id or college_id == "None":
-#            college = models.Unregister_Colleges(
-#             university_name=college.university_name,
-#             official_email=college.official_email,
-#             mobile_number=college.mobile_number,
-#             country_code=college.country_code,
-#             password=bcrypt.hash(college.password),
-#             linkedin_profile=college.linkedin_profile,
-#             college_person_name=college.college_person_name,
-#             agreed_to_terms=college.agreed_to_terms
-#         )
-        
-#         db.add(college)
-#         db.commit()
-#         db.refresh(college)
-        
-#         unregister_colleges_data = {
-#             'university_name': college.university_name,
-#             'official_email': college.official_email,
-#             'country_code': college.country_code,
-#             'mobile_number': college.mobile_number,
-#             'designation': college.designation,
-#             'password': hashed_password,
-#             'linkedin_profile': college.linkedin_profile,
-#             'college_person_name': college.college_person_name,
-#             'agreed_to_terms': college.agreed_to_terms
-            
-#         }
-
-#         send_unregister_college_data(unregister_colleges_data)
-
-#         return JSONResponse({'success': True, 'message': 'Registration successful'})
-
-#     except HTTPException as e:
-#         raise e
-#     except Exception as e:
-#         db.rollback()
-#         return JSONResponse(
-#             status_code=500,
-#             content={"error": "An unexpected error occurred", "detail": str(e)}
-#         )
 
 def write_data_to_google_sheet(college_data: dict, sheet_name: str):
     try:
@@ -389,7 +183,7 @@ def register_college(college: schemas.UniversityInChargeCreate, db: Session = De
 def login_college(college_data: schemas.UniversityInChargeLogin, db: Session = Depends(get_db)):
     try:
         college = db.query(models.UniversityInCharge).filter_by(official_email=college_data.official_email).first()
-        
+
         if not college:
             raise HTTPException(status_code=404, detail="College not found")
 
@@ -405,9 +199,9 @@ def login_college(college_data: schemas.UniversityInChargeLogin, db: Session = D
             status_record.is_online = True
         else:
             db.add(models.OnlineStatus(email=college.official_email, is_online=True))
-        
+
         db.commit()
-                
+
         try:
             send_login_email(college.official_email, college.university_name)
             print("Sending email...", flush=True)
@@ -415,7 +209,6 @@ def login_college(college_data: schemas.UniversityInChargeLogin, db: Session = D
         except HTTPException as e:
             logger.error(f"Email failed: {e}")
             raise HTTPException(status_code=500, detail=f"Email sending failed: {str(e)}")
-        
 
         return {
             "success": True,
@@ -473,7 +266,7 @@ def college_forgot_password(request: Request, data: schemas.ForgotRequest, db: S
 
         request.session['otp'] = new_otp
         request.session['email'] = data.email
-        
+
         college_email = models.Forgot(
            email=data.email,
        
@@ -509,7 +302,7 @@ def college_verify_otp(request: Request, data: schemas.VerifySchema, db: Session
         otp = models.Verify(
             otp=data.otp
         )
-        
+
         db.add(otp)
         db.commit()
         db.refresh(otp)
@@ -520,14 +313,14 @@ def college_verify_otp(request: Request, data: schemas.VerifySchema, db: Session
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 @router.get("/resend-otp")
 def college_resend_otp(request: Request, db: Session = Depends(get_db)):
     try:
         stored_email = request.session.get("email")
         if not stored_email:
             raise HTTPException(status_code=400, detail="Session data not found")
-        
+
         college = db.query(models.UniversityInCharge).filter_by(official_email=stored_email).first()
         if not college:
             raise HTTPException(status_code=404, detail="College not found")
@@ -543,13 +336,13 @@ def college_resend_otp(request: Request, db: Session = Depends(get_db)):
 
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
-    
+
 @router.post("/forgot2")
 def college_forgot2(request: Request, data: schemas.ForgotRequest2, db: Session = Depends(get_db)):
     try:
         password = data.password
         confirm_password = data.confirm_password
-        
+
         if not password or not confirm_password:
             raise HTTPException(status_code=400, detail="Password and confirm_password are required")
 

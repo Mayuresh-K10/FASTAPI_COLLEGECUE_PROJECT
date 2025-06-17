@@ -40,7 +40,7 @@ def send_login_email(email: str, name: str):
         msg["Subject"] = "Login Successful"
         msg["From"] = EMAIL_HOST_USER
         msg["To"] = email
-        
+
         mime_html = MIMEText(html_content, "html")
         msg.attach(mime_html)
 

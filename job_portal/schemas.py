@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field, validator, HttpUrl,EmailStr # type: ignor
 from typing import List, Optional
 from datetime import date, datetime
 
-# for compnay
 class JobCreateRequest(BaseModel):
     job_title: str
     company: str
@@ -27,7 +26,7 @@ class JobCreateRequest(BaseModel):
 
 class JobStatusRequest(BaseModel):
     job_status: str
-    
+
 class JobFilterParams(BaseModel):
     name: Optional[str] = Field(None, description="Company name")
     sort_order: Optional[str] = Field(None, description="'latest' or 'oldest'")
@@ -60,7 +59,7 @@ class Job1CreateRequest(BaseModel):
 
 class Job1StatusRequest(BaseModel):
     job_status: str
-    
+
 class Job1FilterParams(BaseModel):
     name: Optional[str] = Field(None, description="College name")
     sort_order: Optional[str] = Field(None, description="'latest' or 'oldest'")
@@ -387,6 +386,6 @@ class CollegeEnquirySchema(BaseModel):
 
     class Config:
         orm_mode = True
-        
+
 class StatusUpdatePayload(BaseModel):
     application_status: str

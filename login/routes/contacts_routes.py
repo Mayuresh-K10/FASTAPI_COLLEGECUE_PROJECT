@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends,HTTPException # type: ignore
 from fastapi.responses import JSONResponse # type: ignore
 from sqlalchemy.orm import Session # type: ignore
 from login.database import SessionLocal
-# from login import models, schemas
 from login.models import Contact
 from login.schemas import ContactCreate
 

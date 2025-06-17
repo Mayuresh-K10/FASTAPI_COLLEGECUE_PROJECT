@@ -75,12 +75,12 @@ def write_company_to_google_sheet(company_data):
 
     except Exception as e:
         raise RuntimeError(f"Failed to write company data to Google Sheet: {str(e)}")
-    
+
 @router.post("/company-register")
 def register_company(company: schemas.CompanyInChargeCreate, db: Session = Depends(get_db)):
     print("Register function called", flush=True)
     logger.info("Processing registration logic")
-    
+
     try:
         errors = {}
 
@@ -99,7 +99,7 @@ def register_company(company: schemas.CompanyInChargeCreate, db: Session = Depen
         email_username = company.official_email.split('@')[0]
         if not has_two_unique_chars(email_username):
             errors['official_email'] = 'Email username must contain at least 2 unique characters'
-        
+
         if company.password != company.confirm_password:
             errors['password'] = 'Passwords do not match'
 
@@ -138,7 +138,7 @@ def register_company(company: schemas.CompanyInChargeCreate, db: Session = Depen
         }
 
         write_company_to_google_sheet(company_data)
-        
+
         try:
             send_registration_email(company.company_name, company.official_email)
             print("Sending email...", flush=True)
@@ -184,7 +184,7 @@ def login_company(company_data: schemas.CompanyInChargeLogin, db: Session = Depe
             status_record.is_online = True
         else:
             db.add(models.OnlineStatus(email=company.official_email, is_online=True))
-        
+
         db.commit()
 
         try:
@@ -255,10 +255,10 @@ def company_forgot_password(request: Request, data: schemas.ForgotRequest, db: S
 
         request.session['otp'] = new_otp
         request.session['email'] = data.email
-        
+
         company_email = models.Forgot(
            email=data.email,
-       
+
        )
 
         db.add(company_email)
@@ -291,7 +291,7 @@ def company_verify_otp(request: Request, data: schemas.VerifySchema, db: Session
         otp = models.Verify(
             otp=data.otp
         )
-        
+
         db.add(otp)
         db.commit()
         db.refresh(otp)
@@ -302,14 +302,14 @@ def company_verify_otp(request: Request, data: schemas.VerifySchema, db: Session
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 @router.get("/resend-otp")
 def company_resend_otp(request: Request, db: Session = Depends(get_db)):
     try:
         stored_email = request.session.get("email")
         if not stored_email:
             raise HTTPException(status_code=400, detail="Session data not found")
-        
+
         company = db.query(models.CompanyInCharge).filter_by(official_email=stored_email).first()
         if not company:
             raise HTTPException(status_code=404, detail="Company not found")
@@ -325,13 +325,13 @@ def company_resend_otp(request: Request, db: Session = Depends(get_db)):
 
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
-    
+
 @router.post("/forgot2")
 def company_forgot2(request: Request, data: schemas.ForgotRequest2, db: Session = Depends(get_db)):
     try:
         password = data.password
         confirm_password = data.confirm_password
-        
+
         if not password or not confirm_password:
             raise HTTPException(status_code=400, detail="Password and confirm_password are required")
 
@@ -403,7 +403,7 @@ def company_reset_password(request: Request, data: schemas.ResetPasswordRequest,
     except Exception as e:
         db.rollback()
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
-    
+
 @router.post("/delete-account")
 def company_delete_account(
     request: Request,
@@ -414,7 +414,7 @@ def company_delete_account(
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             raise HTTPException(status_code=400, detail="Token is missing or invalid format")
-        
+
         token = auth_header.removeprefix("Bearer ").strip()
 
         company = db.query(models.CompanyInCharge).filter_by(token=token).first()

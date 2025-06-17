@@ -18,23 +18,23 @@ def get_db():
 async def subscribe(subscriber: SubscriptionSchema, db: Session = Depends(get_db)):
     try:
         existing_subscriber = db.query(Subscriber).filter_by(email=subscriber.email).first()
-        
+
         if existing_subscriber:
             return JSONResponse(
                 status_code=200,
                 content={"message": f"You are already subscribed at {existing_subscriber.subscribed_at}"}
             )
-        
+
         new_subscriber = Subscriber(email=subscriber.email)
         db.add(new_subscriber)
         db.commit()
         db.refresh(new_subscriber)
-        
+
         return JSONResponse(
             status_code=201,
             content={"message": f"You have successfully subscribed at {new_subscriber.subscribed_at}"}
         )
-    
+
     except Exception as e:
         db.rollback()
         raise HTTPException(

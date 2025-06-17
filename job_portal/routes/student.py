@@ -407,7 +407,7 @@ async def unsave_job_new_user(request: Request, db: Session = Depends(get_db)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 @router.get("/fetch-saved-jobs-new-user/{new_user_id}")
 def fetch_saved_jobs_new_user(new_user_id: int, request: Request, db: Session = Depends(get_db)):
     try:
@@ -480,7 +480,6 @@ def fetch_saved_jobs_new_user(new_user_id: int, request: Request, db: Session = 
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
 
 @router.post("/submit-enquiry/{clg_id}")
 async def submit_enquiry(clg_id: str, data: EnquiryCreate, db: Session = Depends(get_db)):
@@ -653,7 +652,7 @@ def filter_user_applied_jobs(
         app2_query = app2_query.filter(Application1.status == status)
 
     app2_results = app2_query.all()
-    
+
     applications = list(chain(app1_results, app2_results))
 
     seen_jobs = set()

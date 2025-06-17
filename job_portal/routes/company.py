@@ -306,7 +306,7 @@ def update_company_job(
     job_data: JobCreateRequest, 
     db: Session = Depends(get_db), 
 ):
-    
+
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=400, detail="Token is missing or in an invalid format")
@@ -363,7 +363,7 @@ def update_company_job(
         except SQLAlchemyError as e:
             db.rollback()
             raise HTTPException(status_code=500, detail=f"Error updating job: {str(e)}")
-        
+
 @router.post("/change-job-status/{company_in_charge_id}/{job_id}/")
 def change_company_job_status(
     company_in_charge_id: int,
@@ -372,7 +372,7 @@ def change_company_job_status(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    
+
     auth_header = request.headers.get('Authorization', '')
     if not auth_header.startswith('Bearer '):
         raise HTTPException(status_code=400, detail="Token is missing or in an invalid format")
@@ -532,45 +532,6 @@ def get_job_application_summary(
 
     return JSONResponse(content={"Posted_Jobs": job_summary})
 
-# @router.get("/application-details/{company_in_charge_id}/")
-# def get_application_details(
-#     company_in_charge_id: int,
-#     request: Request,
-#     db: Session = Depends(get_db)
-# ):
-#     auth_header = request.headers.get("Authorization")
-#     if not auth_header or not auth_header.startswith("Bearer "):
-#         raise HTTPException(status_code=400, detail="Token is missing or invalid format")
-
-#     token = auth_header.split(" ")[1]
-
-#     company_in_charge = (
-#         db.query(CompanyInCharge)
-#         .filter_by(id=company_in_charge_id, token=token)
-#         .first()
-#     )
-#     if not company_in_charge:
-#         raise HTTPException(status_code=401, detail="Invalid token or company in charge not found")
-
-#     applications = (
-#         db.query(Application)
-#         .options(joinedload(Application.job))  
-#         .filter(Application.company_in_charge_id == company_in_charge_id)
-#         .all()
-#     )
-
-#     application_details = [
-#         {
-#             "first_name": app.first_name,
-#             "last_name": app.last_name,
-#             "job_title": app.job.job_title if app.job else None,
-#             "status": app.status
-#         }
-#         for app in applications
-#     ]
-
-#     return JSONResponse(content={"Candidates Applied": application_details})
-
 @router.get("/application-details/{company_in_charge_id}/")
 def get_application_details(
     company_in_charge_id: int,
@@ -627,106 +588,6 @@ def filter_empty_entries(entries):
             filtered_entries.append(cleaned_entry)
     return filtered_entries
 
-
-# def fetch_applications_for_company(job, db: Session):
-#     applications = db.query(Application).filter_by(job_id=job.id).all()
-#     applications_list = []
-
-#     for app in applications:
-#         resume = None
-#         if app.user_id:
-#             resume = db.query(Resume).filter_by(user_id=app.user_id).first()
-#         elif app.job_seeker_id:
-#             resume = db.query(JobseekerResume).filter_by(job_seeker_id=app.job_seeker_id).first()
-
-#         resume_data = {}
-#         if resume:
-#             resume_data = {
-#                 "address": resume.address,
-#                 "date_of_birth": resume.date_of_birth,
-#                 "website_urls": resume.website_urls,
-#                 "skills": resume.skills,
-#                 "activities": resume.activities,
-#                 "interests": resume.interests,
-#                 "languages": resume.languages,
-#                 "bio": resume.bio,
-#                 "city": resume.city,
-#                 "state": resume.state,
-#                 "country": resume.country,
-#                 "zipcode": resume.zipcode,
-#                 "objective": getattr(resume.objective, 'text', 'Not specified') if hasattr(resume, 'objective') else 'Not specified',
-#                 "education": [
-#                     {
-#                         "course_or_degree": edu.course_or_degree,
-#                         "school_or_university": edu.school_or_university,
-#                         "grade_or_cgpa": edu.grade_or_cgpa,
-#                         "start_date": edu.start_date,
-#                         "end_date": edu.end_date,
-#                         "description": edu.description
-#                     } for edu in resume.education_entries
-#                 ],
-#                 "experience": filter_empty_entries([
-#                     {
-#                         "job_title": exp.job_title,
-#                         "company_name": exp.company_name,
-#                         "start_date": exp.start_date,
-#                         "end_date": exp.end_date,
-#                         "description": exp.description
-#                     } for exp in resume.experience_entries
-#                 ]),
-#                 "projects": filter_empty_entries([
-#                     {
-#                         "title": p.title,
-#                         "description": p.description,
-#                         "project_link": p.project_link
-#                     } for p in resume.projects
-#                 ]),
-#                 "references": filter_empty_entries([
-#                     {
-#                         "name": r.name,
-#                         "contact_info": r.contact_info,
-#                         "relationship": r.relationship,
-#                     } for r in resume.references
-#                 ]),
-#                 "certifications": filter_empty_entries([
-#                     {
-#                         "name": c.name,
-#                         "start_date": c.start_date,
-#                         "end_date": c.end_date,
-#                     } for c in resume.certifications
-#                 ]),
-#                 "achievements": filter_empty_entries([
-#                     {
-#                         "title": a.title,
-#                         "publisher": a.publisher,
-#                         "start_date": a.start_date,
-#                         "end_date": a.end_date,
-#                     } for a in resume.achievements
-#                 ]),
-#                 "publications": filter_empty_entries([
-#                     {
-#                         "title": pub.title,
-#                         "start_date": pub.start_date,
-#                         "end_date": pub.end_date,
-#                     } for pub in resume.publications
-#                 ]),
-#             }
-
-#         model_name = "new_user" if app.user_id else "JobSeeker"
-
-#         applications_list.append({
-#             "id": app.id,
-#             "first_name": app.first_name,
-#             "last_name": app.last_name,
-#             "email": app.email,
-#             "phone_number": app.phone_number,
-#             "status": app.status,
-#             "applied_at": app.applied_at.isoformat() if app.applied_at else None,
-#             "model_name": model_name,
-#             "resume_details": resume_data,
-#         })
-
-#     return applications_list
 
 def fetch_applications_for_company(job, db: Session):
     applications = db.query(Application).filter_by(job_id=job.id).all()
@@ -848,7 +709,7 @@ def fetch_company_job_applications(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    
+
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=400, detail="Token is missing or not in the correct format")
@@ -894,87 +755,6 @@ def fetch_company_job_applications(
     "jobdetails": job_details,
     "applicants": applications_list,
 }))
-    
-# @router.put("/update-company-application-status/{company_in_charge_id}/{application_id}/")
-# def update_company_application_status(
-#     company_in_charge_id: int,
-#     application_id: int,
-#     request: Request,
-#     payload: StatusUpdatePayload,
-#     authorization: Optional[str] = Header(None),
-#     db: Session = Depends(get_db)
-# ):
-
-#     if not authorization or not authorization.startswith("Bearer "):
-#         raise HTTPException(status_code=400, detail="Token is missing or invalid format")
-    
-#     token = authorization.split(" ")[1]
-
-#     company_in_charge = db.query(CompanyInCharge).filter_by(id=company_in_charge_id, token=token).first()
-#     if not company_in_charge:
-#         raise HTTPException(status_code=401, detail="Invalid token or company in charge not found")
-
-#     application = db.query(Application).filter_by(id=application_id, company_in_charge_id=company_in_charge_id).first()
-#     if not application:
-#         raise HTTPException(status_code=404, detail="Application not found")
-
-#     application.status = payload.application_status
-#     db.commit()
-
-#     ############################ Notifications ############################
-#     company_email_safe = re.sub(r'[@.]', lambda m: "_at_" if m.group() == '@' else "_dot_", company_in_charge.official_email)
-#     notification_group = f"notifications_{company_email_safe}"
-
-#     notification_message = (
-#         f"Application status for {application.first_name} {application.last_name} "
-#         f"updated to {application.status} by {company_in_charge.company_name}"
-#     )
-
-#     # await send_notification_to_group(notification_group, notification_message)
-
-#     if application.job_seeker:
-#         job_seeker = application.job_seeker
-#         js_email_safe = re.sub(r'[@.]', lambda m: "_at_" if m.group() == '@' else "_dot_", job_seeker.email)
-#         job_seeker_group = f"notifications_{js_email_safe}"
-
-#         recipient_status = db.query(OnlineStatus).filter_by(email=job_seeker.email).first()
-#         message = (
-#             f"Your application for {application.job.job_title} has been updated "
-#             f"to {application.status} by {company_in_charge.company_name}"
-#         )
-
-#         if recipient_status and recipient_status.is_online:
-#             # await send_notification_to_group(job_seeker_group, message)
-#             print("recipient is online")
-#         else:
-#             send_appliction_email(
-#                 subject="Application Status Update",
-#                 body=f"Dear {job_seeker.first_name} {job_seeker.last_name},\n\n{message}\n\nHR Team\n{company_in_charge.company_name}",
-#                 recipient=job_seeker.email,
-#             )
-
-#     if application.user:
-#         user = application.user
-#         user_email_safe = re.sub(r'[@.]', lambda m: "_at_" if m.group() == '@' else "_dot_", user.email)
-#         user_group = f"notifications_{user_email_safe}"
-
-#         recipient_status = db.query(OnlineStatus).filter_by(email=user.email).first()
-#         message = (
-#             f"Your application for {application.job.job_title} has been updated "
-#             f"to {application.status} by {company_in_charge.company_name}"
-#         )
-
-#         if recipient_status and recipient_status.is_online:
-#             # await send_notification_to_group(user_group, message)
-#             print("recipient is online")
-#         else:
-#             send_appliction_email(
-#                 subject="Application Status Update",
-#                 body=f"Dear {user.firstname} {user.lastname},\n\n{message}\n\nBest Regards,\nHR Team\n{company_in_charge.company_name}",
-#                 recipient=user.email,
-#             )
-
-#     return JSONResponse(status_code=200, content={"message": "Application status updated successfully"})
 
 
 @router.put("/update-company-application-status/{company_in_charge_id}/{application_id}/")

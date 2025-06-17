@@ -77,7 +77,7 @@ def write_jobseeker_to_google_sheet(jobseeker_data):
         ]
 
         worksheet.append_row(new_row)
-    
+
     except Exception as e:
         raise RuntimeError(f"Failed to write user data to Google Sheet: {str(e)}")
 
@@ -85,7 +85,7 @@ def write_jobseeker_to_google_sheet(jobseeker_data):
 def register_jobseeker(jobseeker: schemas.JobseekerCreate, db: Session = Depends(get_db)):
     print("Register function called", flush=True)
     logger.info("Processing registration logic")
-    
+
     try:
         errors: Dict[str, str] = {}
 
@@ -102,7 +102,7 @@ def register_jobseeker(jobseeker: schemas.JobseekerCreate, db: Session = Depends
         email_username = jobseeker.email.split('@')[0]
         if not has_two_unique_chars(email_username):
             errors['email'] = 'Email username must contain at least 2 unique characters'
-        
+
         if jobseeker.password != jobseeker.confirm_password:
             errors['password'] = 'Passwords do not match'
 
@@ -141,7 +141,7 @@ def register_jobseeker(jobseeker: schemas.JobseekerCreate, db: Session = Depends
         }
 
         write_jobseeker_to_google_sheet(jobseeker_data)
-        
+
         try:
             send_registration_email(jobseeker.firstname, jobseeker.email)
             print("Sending email...", flush=True)
@@ -151,7 +151,7 @@ def register_jobseeker(jobseeker: schemas.JobseekerCreate, db: Session = Depends
             raise HTTPException(status_code=500, detail=f"Email sending failed: {str(e)}")
 
         return JSONResponse({'success': True, 'message': 'Registration successful'})
-    
+
     except HTTPException:
         raise
     except Exception as e:
@@ -161,7 +161,7 @@ def register_jobseeker(jobseeker: schemas.JobseekerCreate, db: Session = Depends
 def login_jobseeker(jobseeker_data: schemas.JobseekerLogin, db: Session = Depends(get_db)):
     try:
         jobseeker = db.query(models.JobSeeker).filter_by(email=jobseeker_data.email).first()
-    
+
         if not jobseeker:
            raise HTTPException(status_code=404, detail="Jobseeker not found")
 
@@ -177,9 +177,9 @@ def login_jobseeker(jobseeker_data: schemas.JobseekerLogin, db: Session = Depend
             status_record.is_online = True
         else:
             db.add(models.OnlineStatus(email=jobseeker.email, is_online=True))
-            
+
         db.commit()
-    
+
         try:
            send_login_email(jobseeker_data.email, jobseeker.firstname)
            print("Sending email...", flush=True)
@@ -199,7 +199,7 @@ def login_jobseeker(jobseeker_data: schemas.JobseekerLogin, db: Session = Depend
            "lastname": jobseeker.lastname,
            "model": "JobSeeker"
         }
-    
+
     except HTTPException:
         raise
     except Exception as e:
@@ -241,10 +241,10 @@ def jobseeker_forgot_password(request: Request, data: schemas.ForgotRequest, db:
 
         request.session['otp'] = new_otp
         request.session['email'] = data.email
-        
+
         jobseeker_email = models.Forgot(
            email=data.email,
-       
+
        )
 
         db.add(jobseeker_email)
@@ -277,7 +277,7 @@ def jobseeker_verify_otp(request: Request, data: schemas.VerifySchema, db: Sessi
         otp = models.Verify(
             otp=data.otp
         )
-        
+
         db.add(otp)
         db.commit()
         db.refresh(otp)
@@ -288,14 +288,14 @@ def jobseeker_verify_otp(request: Request, data: schemas.VerifySchema, db: Sessi
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 @router.get("/resend-otp")
 def jobseeker_resend_otp(request: Request, db: Session = Depends(get_db)):
     try:
         stored_email = request.session.get("email")
         if not stored_email:
             raise HTTPException(status_code=400, detail="Session data not found")
-        
+
         jobseeker = db.query(models.JobSeeker).filter_by(email=stored_email).first()
         if not jobseeker:
             raise HTTPException(status_code=404, detail="Jobseeker not found")
@@ -314,10 +314,10 @@ def jobseeker_resend_otp(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/forgot2")
 def jobseeker_forgot2(request: Request, data: schemas.ForgotRequest2, db: Session = Depends(get_db)):
-    
+
     password = data.password
     confirm_password = data.confirm_password
-    
+
     if not password or not confirm_password:
         raise HTTPException(status_code=400, detail="Password and confirm_password are required")
 

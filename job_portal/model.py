@@ -73,7 +73,7 @@ class Application(Base):
     bio = Column(Text, nullable=True)
     education = Column(Text, nullable=True)
     experience = Column(Text, nullable=True)
-    
+
     job_seeker = relationship("JobSeeker", backref="applications")
     user = relationship("new_user", backref="applications")
     job = relationship("Job", backref="applications")
@@ -141,7 +141,7 @@ class Application1(Base):
     bio = Column(Text, nullable=True)
     education = Column(Text, nullable=True)
     experience = Column(Text, nullable=True)
-    
+
     job_seeker = relationship("JobSeeker", backref="colleges_applications")
     user = relationship("new_user", backref="colleges_applications")
     job = relationship("Job1", backref="colleges_applications")
@@ -415,18 +415,3 @@ class JobseekerPublication(Base):
     publisher = Column(String(100), nullable=True)
     start_date = Column(Date, nullable=True)
     end_date = Column(Date, nullable=True)
-
-
-# class CollegeEnquiry(Base):
-#     __tablename__ = "college_enquiry"
-
-#     id = Column(Integer, primary_key=True, index=True)
-#     university_in_charge_id = Column(Integer, ForeignKey("university_in_charge.id"))
-#     new_user = Column(Integer, ForeignKey("new_user.id"))
-#     first_name = Column(String(50))
-#     last_name = Column(String(50))
-#     email = Column(String(100))
-#     mobile_number = Column(String(15))
-#     course = Column(String(128), default='N/A')
-#     status = Column(String(20), default='not-replied')
-#     created_at = Column(DateTime, default=datetime.utcnow)

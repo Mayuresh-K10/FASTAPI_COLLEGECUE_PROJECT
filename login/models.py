@@ -41,7 +41,7 @@ class UniversityInCharge(Base):
 
 class OnlineStatus(Base):
     __tablename__ = "online_status"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255),unique=True, default="Null")
     is_online = Column(Boolean, default=False)
@@ -49,7 +49,7 @@ class OnlineStatus(Base):
 
     def __repr__(self):
         return f"{self.email} - {'Online' if self.is_online else 'Offline'}"
-    
+
 class new_user(Base):
     __tablename__ = "new_user"
 
@@ -77,13 +77,12 @@ class new_user(Base):
 
 class JobSeeker(Base):
     __tablename__ = "jobseeker"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     firstname = Column(String(255), nullable=False)
     lastname = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, nullable=False, index=True)
     phonenumber = Column(String(255), nullable=False)
-    # designation = Column(String(255), default="null")
     experience = Column(Integer, nullable=True)
     linkedin_profile = Column(String(255), nullable=True)
     password = Column(String(255), nullable=False)
@@ -109,7 +108,7 @@ class Verify(Base):
 
 class Forgot2(Base):
     __tablename__ = "forgot2"
-   
+
     id = Column(Integer, primary_key=True, index=True)
     password = Column(String(128), default="null")
     confirm_password = Column(String(128), default="null")
@@ -172,7 +171,7 @@ class Subscriber(Base):
 
     def __repr__(self):
         return f"<Subscriber(email={self.email}, subscribed_at={self.subscribed_at})>"
-    
+
 class Subscriber1(Base):
     __tablename__ = 'subscribers1'
 

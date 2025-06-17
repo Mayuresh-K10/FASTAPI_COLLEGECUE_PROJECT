@@ -17,7 +17,7 @@ def get_db():
 def get_all_questions(db: Session = Depends(get_db)):
     try:
         questions = db.query(Question).all()
-        
+
         return questions
 
     except Exception as e:

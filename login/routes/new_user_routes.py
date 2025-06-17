@@ -86,7 +86,7 @@ def write_to_google_sheet(user_data):
 def register_user(user: newusercreate, db: Session = Depends(get_db)):
     print("Register function called", flush=True)
     logger.info("Processing registration logic")
-    
+
     try:
         errors: Dict[str, str] = {}
 
@@ -109,13 +109,13 @@ def register_user(user: newusercreate, db: Session = Depends(get_db)):
             email_username = user.email.split('@')[0]
             if not has_two_unique_chars(email_username):
                 errors['email'] = 'Email must contain at least 2 unique characters before @'
-        
+
         if user.password != user.confirm_password:
             errors['password'] = 'Passwords do not match'
-        
+
         if errors:
             raise HTTPException(status_code=400, detail=errors)
-        
+
         hashed_password = bcrypt.hash(user.password)
         hashed_password1 = bcrypt.hash(user.confirm_password)
 
@@ -130,11 +130,11 @@ def register_user(user: newusercreate, db: Session = Depends(get_db)):
             gender=user.gender,
             agreed_to_terms=user.agreed_to_terms
         )
-        
+
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        
+
         user_data = {
             'firstname':user.firstname,
             'lastname':user.lastname,
@@ -144,11 +144,11 @@ def register_user(user: newusercreate, db: Session = Depends(get_db)):
             'password':hashed_password,
             'gender':user.gender,
             'agreed_to_terms':user.agreed_to_terms
-                
+
         }
-        
+
         write_to_google_sheet(user_data)
-        
+
         try:
             send_registration_email(user.firstname, user.email)
             print("Sending email...", flush=True)
@@ -157,57 +157,12 @@ def register_user(user: newusercreate, db: Session = Depends(get_db)):
             logger.error(f"Email failed: {e}")
             raise HTTPException(status_code=500, detail=f"Email sending failed: {str(e)}")
 
-        
         return JSONResponse({'message': 'Registration successful'})
 
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
-
-
-# @router.post("/next")
-# def complete_registration(user: newusernextstep, db: Session = Depends(get_db)):
-#     try:
-#         errors: Dict[str, str] = {}
-
-#         if not user.entrance:
-#             errors['entrance'] = 'Check box not clicked'
-#         if not user.passport:
-#             errors['passport'] = 'Check box not clicked'
-
-#         if errors:
-#             raise HTTPException(status_code=400, detail=errors)
-
-#         hashed_password = bcrypt.hash(user.password)
-
-#         new_user = models.new_user(
-#             firstname=user.firstname,
-#             lastname=user.lastname,
-#             email=user.email,
-#             country_code=user.country_code,
-#             phonenumber=user.phonenumber,
-#             password=hashed_password,
-#             course=user.course,
-#             educations=user.education,
-#             percentage=user.percentage,
-#             preferred_destination=user.preferred_destination,
-#             start_date=user.start_date,
-#             mode_study=user.mode_study,
-#             entrance=user.entrance,
-#             passport=user.passport
-#         )
-
-#         db.add(new_user)
-#         db.commit()
-#         db.refresh(new_user)
-
-#         return JSONResponse({'message': 'Registration successful'})
-
-#     except HTTPException:
-#         raise
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
 
 @router.post("/login")
 def login(user: newuserlogin, db: Session = Depends(get_db)):
@@ -290,10 +245,10 @@ def forgot_password(request: Request, data: ForgotRequest, db: Session = Depends
 
         request.session['otp'] = new_otp
         request.session['email'] = data.email
-        
+
         user_email = models.Forgot(
            email=data.email,
-       
+
        )
 
         db.add(user_email)
@@ -326,7 +281,7 @@ def verify_otp(request: Request, data: VerifySchema, db: Session = Depends(get_d
         otp = models.Verify(
             otp=data.otp
         )
-        
+
         db.add(otp)
         db.commit()
         db.refresh(otp)
@@ -337,14 +292,14 @@ def verify_otp(request: Request, data: VerifySchema, db: Session = Depends(get_d
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 @router.get("/resend-otp")
 def resend_otp(request: Request, db: Session = Depends(get_db)):
     try:
         stored_email = request.session.get("email")
         if not stored_email:
             raise HTTPException(status_code=400, detail="Session data not found")
-        
+
         user = db.query(models.new_user).filter_by(email=stored_email).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -360,7 +315,7 @@ def resend_otp(request: Request, db: Session = Depends(get_db)):
 
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
-    
+
 @router.post("/forgot2")
 def forgot2(request: Request, data: ForgotRequest2, db: Session = Depends(get_db)):
     try:
@@ -396,7 +351,7 @@ def forgot2(request: Request, data: ForgotRequest2, db: Session = Depends(get_db
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Password reset failed: {str(e)}")
-    
+
 @router.post("/reset-password")
 def reset_password(request: Request, data: ResetPasswordRequest, db: Session = Depends(get_db)):
     try:
